@@ -1,5 +1,6 @@
 import pandas as pd 
 import spacy
+import string
 
 # j'essaye d'ajouter des trucs pour essayer de commit et de push plus tard 
 
