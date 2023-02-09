@@ -1,6 +1,8 @@
 import pandas as pd 
 import spacy
 
+# j'essaye d'ajouter des trucs pour essayer de commit et de push plus tard 
+
 from spacy.lang.en import English
 nlp = spacy.load('en_core_web_sm')
 nlp.disable_pipes(["tagger", "parser"])
