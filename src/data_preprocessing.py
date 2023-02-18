@@ -14,14 +14,17 @@ dtypes = {
     'text': object,
 }
 
-def read_HouseOfCommons(keep_date):
+def read_HouseOfCommons(keep_date, rd_lines=False, n=1000):
     '''
     Objectif:
     Cette fonction permet de lire la base des parlementaires 
     elle renvoie le dataFrame preprocessé
+    Elle peut ne renvoyer qu'uniquement n random lines du df  (1000 par défaut)
 
     Arguments:
     keep_date -> bool qui détermine si on supprime la colonne keep_date
+    df -> DataFrame : le DataFrame
+    n -> int : le nb de lignes qu'on souhaite garder
     '''
     df = read_input('00. input/Corp_HouseOfCommons_V2_2010-2.csv', encod='ISO-8859-1', dtype_values=dtypes)
     if keep_date:
@@ -32,20 +35,11 @@ def read_HouseOfCommons(keep_date):
         {'speaker': 'Speaker'},
         inplace=True
     )
+    if rd_lines:
+        df = df.sample(frac=1).reset_index(drop=True)
+        df = df.head(n)
+        return df
     return df 
-
-def keep_rd_lines(df, n):
-    '''
-    Objectif:
-    Cette fonction renvoie n random lines du df  
-
-    Arguments:
-    df -> le DataFrame
-    n -> le nb de lignes qu'on souhaite garder
-    '''
-    df = df.sample(frac=1).reset_index(drop=True)
-    df = df.head(n)
-    return df
 
 def keep_parties(df, list_of_parties):
     '''
