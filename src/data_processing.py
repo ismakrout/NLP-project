@@ -13,12 +13,12 @@ putback = ['prime', 'officials', 'security', 'news', 'working', 'games', 'jobs',
 
 def construct_list_stopwords(list_putback_words=putback):
   '''
-  Objectif:
   On importe la liste des stopwords :
   On a donc un dataframe des stopwords. On en tire une liste simple des stopwords, où l'on remet cependant des stopwords jugés significatifs, comme expliqué pour le traitement des journaux :
   
-  Arguments:
-  list_putback_words -> list des mot jugés finalement signifcatifs 
+  Parameters:
+  -----------
+  list_putback_words : list des mot jugés finalement signifcatifs 
   '''
   df_stopwords = pd.read_csv("00. input/sw1k.csv",
                 names=['word', 'frequency', 'presence', 'doc_size_sum', 'type'],
@@ -31,15 +31,15 @@ nlp = spacy.load('en_core_web_sm')
 nlp.disable_pipes(["tagger", "parser"])
 stemmer = SnowballStemmer(language='english')
 
-def clean(text, list_stopwords):
+def clean(text: str, list_stopwords: list):
   '''
-  Objectif:
   On va cleen le text
   On utilise la librairie SpaCy comme pour le traitement des journaux, et on enlève les nombres et la ponctuation avec la méthode translate. 
   
-  Arguments:
-  text -> str: le texte sur lequel on fait le processing
-  list_stopwords -> list: mots à écarter !
+  Parameters:
+  -----------
+  text : le texte sur lequel on fait le processing
+  list_stopwords : mots à écarter !
   '''
   text = str(text).lower()
   text = text.translate(str.maketrans('', '', string.punctuation))
@@ -109,42 +109,42 @@ celebrity=['dubost','neymar','amanda','beyonce','blur','richard','hammond','ranj
 
 topics = celebrity + configue + competitor + types + ceos + products + firms + consumer_protection + technology
 
-def process_list_BigTech_words(topics):
+def process_list_BigTech_words(topics: list):
   '''
-  Objectifs:
   Obtient une liste cleen des topics BigTech traités
 
-  Arguments:
-  topics -> list : liste des topics de la bigTech 
+  Parameters:
+  -----------
+  topics : liste des topics de la bigTech 
   '''
   string_of_topics = ' '.join(topics)
   string_of_topics = stemmer.stem(string_of_topics)
   list_stem_topics = string_of_topics.split(' ')
   return list_stem_topics
 
-def lines_to_keep(titre, liste_big_tech):
+def lines_to_keep(titre: str, liste_big_tech: list):
   '''
-  Objectifs:
   prend en input le titre du speech
   retourne un booleen qui indique si le speech est en lien avec le domaine de la big tech
 
-  Arguments:
-  titre -> list : titre du speech étudié
-  liste_big_tech -> set : set des mots en lien avec la BigTech
+  Parameters:
+  -----------
+  titre : titre du speech étudié
+  liste_big_tech : set des mots en lien avec la BigTech
   '''
   if len(set(titre) & liste_big_tech) > 0:
       return True
   return False
 
-def keep_Bigtech_speeches(df, list_stem_topics):
+def keep_Bigtech_speeches(df: pd.DataFrame, list_stem_topics: list):
   '''
-  Objectifs:
   prend en input le DataFrame des inputs 
   renvoie le df contenant uniquement les lignes contenant des speechs en lien avec la BigTech
 
-  Arguments:
-  df -> DataFrame : Dataframe des inputs
-  list_stem_topics -> list : liste des mots en lien avec la BigTech
+  Parameters:
+  -----------
+  df : Dataframe des inputs
+  list_stem_topics : liste des mots en lien avec la BigTech
   '''
   set_stem_topics = set(list_stem_topics)
   df['lines_to_keep'] = df['agenda'].apply(lines_to_keep, args=(set_stem_topics,))
@@ -152,15 +152,15 @@ def keep_Bigtech_speeches(df, list_stem_topics):
   df.drop(columns=['agenda', 'lines_to_keep'], inplace=True)
   return df 
 
-def count_freqs(df, party):
+def count_freqs(df: pd.DataFrame, party: str):
   '''
-  Objectifs:
   prend en input le DataFrame
   renvoie le df des fréquences pour un parti donné
 
-  Arguments:
-  df -> DataFrame : Dataframe 
-  party -> str : le parti politique pour lequel on souhaite les freqs 
+  Parameters:
+  -----------
+  df : le Dataframe 
+  party : le parti politique pour lequel on souhaite les freqs 
   '''  
   aux = df[['party', 'text']] 
   list_of_words = pd.Series(aux.groupby(by=['party']).sum().loc[party, 'text'])
@@ -168,12 +168,12 @@ def count_freqs(df, party):
   freq_df = freq_df.reset_index().rename(columns={'index':"words"})
   return freq_df
 
-def merge_freq(df_1, df_2):
+def merge_freq(df_1: pd.DataFrame, df_2: pd.DataFrame):
   '''
-  Objectifs:
   permet de faire le merge entre les freq_df des différents partis
 
-  Arguments:
+  Parameters:
+  -----------
   df_1 -> DataFrame : Dataframe 
   df_2 -> DataFrame : Dataframe 
   '''  
@@ -186,13 +186,13 @@ def merge_freq(df_1, df_2):
   return df_freqs
 
 
-def count_liste(list, mot):
+def count_liste(list: list, mot: str):
     '''
-    Objectifs:
     calcule la fréquence de mot dans la list
 
-    Arguments:
-    list -> list : la liste qu'on étudie 
+    Parameters:
+    -----------
+    list : la liste qu'on étudie 
     mot : le mot dont on veut calculer la fréquence
     '''
     return list.count(mot)
@@ -200,24 +200,24 @@ def count_liste(list, mot):
 def selected_words(df_freqs):
     return df_freqs['words'].unique()
 
-def construct_df_reg(df, df_freqs, list_of_words):
+def construct_df_reg(df: pd.DataFrame, df_freqs: pd.DataFrame, list_of_words: list):
     '''
-    Objectifs:
     Construire le df qui va nous aider à faire nos régressions 
 
-    Arguments:
+    Parameters:
+    -----------
     df_freqs -> DataFrame : le df des freqs
     '''
     for word in list_of_words:
         df[f'{word}'] = df['text'].apply(count_liste, args=(word,))
     return df 
 
-def normalize(df, list_of_words):
+def normalize(df: pd.DataFrame, list_of_words: list):
     '''
-    Objectifs:
     Normaliser les coeffs du Df 
 
-    Arguments:
+    Parameters:
+    -----------
     df -> DataFrame : le df 
     '''
     df['somme'] = df.sum(axis=1)
@@ -226,7 +226,7 @@ def normalize(df, list_of_words):
         df[f'{word}'] = df[f'{word}'] / df['somme'] 
     return df
 
-def party_str_to_dummy(df):
+def party_str_to_dummy(df: pd.DataFrame):
   df.loc[df['party'] == 'Con', 'party_bool'] = 1
   df.loc[df['party'] == 'Lab', 'party_bool'] = 0
   return df 
