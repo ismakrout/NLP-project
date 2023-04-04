@@ -11,7 +11,7 @@ from src.utils import *
 from src.data_preprocessing import *
 from src.data_processing import *
 from src.feature_selection import *
-from src.modelisation import *
+from src.modelisation_arcticle_1 import *
 
 os.chdir('/Users/ismailakrout/Desktop/python/NLP_statapp')
 
@@ -65,6 +65,7 @@ df_freqs = test_qi_2(df_freqs)
 #  On va se limiter aux 500 premiers mots :
 
 df_freqs = keep_significatif_word(df_freqs, n=500)
+# df_freqs.to_csv('01. output/df_freqs.csv')
 
 # ## data processing bis
 
