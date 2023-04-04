@@ -65,12 +65,13 @@ df_freqs = test_qi_2(df_freqs)
 #  On va se limiter aux 500 premiers mots :
 
 df_freqs = keep_significatif_word(df_freqs, n=500)
-# df_freqs.to_csv('01. output/df_freqs.csv')
 
 # ## data processing bis
 
 list_of_words = selected_words(df_freqs)
 df = construct_df_reg(df, df_freqs, list_of_words)
+# df.to_csv('01. output/df_freqs_speaker_word.csv')
+
 df = normalize(df, list_of_words)
 df = party_str_to_dummy(df)
 
