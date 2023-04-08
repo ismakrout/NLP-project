@@ -50,3 +50,19 @@ def keep_parties(df: pd.DataFrame, list_of_parties: list):
     list_of_parties : liste des partis politiques qu'on souhaite garder
     '''
     return df.loc[df['party'].isin(list_of_parties)]
+
+def read_and_prepare_df_of_the_model(path: str):
+    '''
+    this function reads the dataframe with the 500 significant words and their frequencies found 
+    during the treatement of article 1. It prepares it and put it in shape to prepare the new model. 
+
+    Parameters:
+    -----------
+    path: the path of the df_freqs obtained in the first model
+    '''
+    df = pd.read_csv(path)
+    df.drop(columns=['Unnamed: 0', 'text'], inplace=True)
+    new_df = pd.melt(df, id_vars=['Speaker', 'party'])
+    new_df.sort_values(by=['variable'], inplace=True)
+    new_df = new_df.reset_index(drop=True)
+    return new_df
