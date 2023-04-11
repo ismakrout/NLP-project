@@ -65,4 +65,5 @@ def read_and_prepare_df_of_the_model(path: str):
     new_df = pd.melt(df, id_vars=['Speaker', 'party'])
     new_df.sort_values(by=['variable'], inplace=True)
     new_df = new_df.reset_index(drop=True)
+    new_df.rename(columns={'value': 'c_ijt'}, inplace=True)
     return new_df
