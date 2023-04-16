@@ -67,3 +67,39 @@ def compute_q_ijt_column(df: pd.DataFrame, party: str):
     df_modelisation[f'q_hat_{party}_-ijt'] = df_modelisation['Somme_c_it'] / df_modelisation['Somme_m_it']
     
     return df_modelisation
+
+def compute_rho_hat_ijt_column(df_leave_out: pd.DataFrame, df_plugin: pd.DataFrame, party: str):
+    '''
+    compute the rho column
+    
+    Parameters
+    ----------
+    df_leave_out: the dataframe of the leave-out estimator
+    df_plugin: the dataframe of the plugin estimator of the opposite party
+    party: the party equal to 'Lab' or 'Con'
+    '''
+    opposite_party = 'Con' if party == 'Lab' else 'Lab'
+    df_leave_out = pd.merge(
+        df_leave_out,
+        df_plugin,
+        how='left',
+        on=['variable']
+    )
+    df_leave_out['rho_hat_-ijt'] = (df_leave_out[f'q_hat_{party}_-ijt']) / (df_leave_out[f'q_hat_{party}_-ijt'] + df_leave_out[f'q_hat_{opposite_party}_jt'])
+    df_leave_out['produit_q_rho'] = df_leave_out['q_hat_it'] * df_leave_out['rho_hat_-ijt']
+    return df_leave_out
+
+def create_df_pi_word_party(df_leave_out: pd.DataFrame, party: str):
+    '''
+    create a df with 2 columns the gramm and the associated pi
+
+    Parameters
+    ----------
+    df_leave_out: the dataframe of the leave-out estimator
+    party: the party equal to 'Lab' or 'Con'
+    '''
+    nb_speaker_party = len(df_leave_out['Speaker'].unique())
+    df_pi_word_party = df_leave_out[['variable', 'produit_q_rho']].groupby(by=['variable']).sum().reset_index()
+    df_pi_word_party[f'moitie_{party}_pi'] = df_pi_word_party['produit_q_rho']*(1/2)*(1/nb_speaker_party)
+    df_pi_word_party.drop(columns=['produit_q_rho'], inplace=True)
+    return df_pi_word_party
