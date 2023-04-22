@@ -2,7 +2,14 @@ import pandas as pd
 import spacy
 import string
 from spacy.lang.en import English
+import nltk
+from nltk.tokenize import word_tokenize
 from nltk.stem.snowball import SnowballStemmer
+from nltk.stem import PorterStemmer
+import re
+nltk.download('stopwords')
+from nltk.corpus import stopwords
+nltk.download('punkt')
 
 putback = ['prime', 'officials', 'security', 'news', 'working', 'games', 'jobs', 'campaign', 'services',
 'civil', 'economic', 'information', 'political', 'election', 'court', 'office', 'vote', 'trump', 'control', 'job', 'price',
@@ -25,13 +32,23 @@ def construct_list_stopwords(list_putback_words=putback):
                 encoding='latin-1').drop(index=0)
   stopwords = df_stopwords['word'].unique()
   stopwords = list(set(stopwords) - set(list_putback_words))
+  stopwords += ['hon']
   return stopwords
 
 nlp = spacy.load('en_core_web_sm')
 nlp.disable_pipes(["tagger", "parser"])
 stemmer = SnowballStemmer(language='english')
 
-def clean(text: str, list_stopwords: list):
+english_stopwords = set(stopwords.words('english'))
+
+def extract_bigrams(n_grams):
+  bigrams = []
+  for i in range(len(n_grams)-1):
+    bigram = f'{n_grams[i]} {n_grams[i+1]}'
+    bigrams.append(bigram)
+  return bigrams
+
+def clean(text: str, gram:str):
   '''
   On va cleen le text
   On utilise la librairie SpaCy comme pour le traitement des journaux, et on enlève les nombres et la ponctuation avec la méthode translate. 
@@ -39,19 +56,21 @@ def clean(text: str, list_stopwords: list):
   Parameters:
   -----------
   text : le texte sur lequel on fait le processing
-  list_stopwords : mots à écarter !
   '''
   text = str(text).lower()
   text = text.translate(str.maketrans('', '', string.punctuation))
   text = text.translate(str.maketrans('', '', string.digits)) 
-  doc = nlp(text)
-  cleen_text = []
-  for word in doc :
-    word = str(word)
-    cleen_text.append(stemmer.stem(word))
-    if (cleen_text[-1] == ' ') or (cleen_text[-1] in list_stopwords): 
-      cleen_text.pop()
-  return cleen_text
+  # tokenization
+  tokens = word_tokenize(text)
+  # Enlever les caractères qui ne sont pas des lettres
+  tokens = [re.sub('[^a-zA-Z]', '', token) for token in tokens]
+  # Stemming
+  stemmer = PorterStemmer()
+  tokens_stemmed = [stemmer.stem(token) for token in tokens]
+  filtered_words = [word for word in tokens_stemmed if not word.lower() in english_stopwords]
+  if (gram == 'bigram'):
+    filtered_words = extract_bigrams(filtered_words)
+  return filtered_words
 
 technology=['technology','innovat','computer','high tech|high-tech','science','engineering']
 consumer_protection=['privacy','data leak','leak','fake news',' safety','decept','defective','hack']
