@@ -13,7 +13,10 @@ from src.data_processing import *
 from src.feature_selection import *
 from src.modelisation_arcticle_1 import *
 
-os.chdir('/Users/ismailakrout/Desktop/python/NLP_statapp')
+os.chdir('../')
+
+import warnings 
+warnings.filterwarnings('ignore')
 
 # ## Data pre-processing 
 
@@ -26,11 +29,9 @@ df = keep_parties(df, ['Lab', 'Con'])
 
 # ## Data processing
 
-# On construit la liste des mots jugés non significatifs
-stop_words = construct_list_stopwords()
 
 # On cleen les titres des speechs
-df['agenda'] = df['agenda'].apply(clean, args=(stop_words,))
+df['agenda'] = df['agenda'].apply(clean, args=('unigram',))
 
 # On construit las liste cleen des topics
 list_stem_topics = process_list_BigTech_words(topics)
@@ -38,7 +39,7 @@ list_stem_topics = process_list_BigTech_words(topics)
 # On filtre le df et on garde uniquement les speechs sur les BigTech
 df = keep_Bigtech_speeches(df, list_stem_topics)
 
-df['text'] = df['text'].apply(clean, args=(stop_words,))
+df['text'] = df['text'].apply(clean, args=('bigram',))
 
 # On fait le groupby() par speaker et party par la suite pour ne pas dépasser les 1 000 000 carc 
 df = df.groupby(by=['Speaker', 'party']).sum().reset_index()
