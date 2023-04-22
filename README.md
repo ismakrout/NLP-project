@@ -11,3 +11,11 @@ On va tout d'abord créer une fonction qui va appliquer le même traitement aux 
 - stemming des mots 
 - nettoyage des stopwords à l'aide de la même liste que pour les journaux
 - remise des mêmes stopwords significatifs que pour les journaux 
+
+## Organisation des NB 
+* Les NB_1 et NB_2 portent sur le premier article. 
+    + Le NB_1 avec les speachs du parlement 
+    + Le NB_2 sur les articles du daily news et de the guardian
+* Les NB_3 et NB_4 portent sur le premier article. 
+    - Le NB_3 avec les speachs du parlement 
+    - Le NB_4 sur les articles du daily news et de the guardian 
