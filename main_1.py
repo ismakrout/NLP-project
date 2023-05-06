@@ -81,3 +81,6 @@ df = party_str_to_dummy(df)
 # rajout des lignes slopes_coeff et intercept
 df = regress_df(df, list_of_words)
 # df.to_csv('01. output/df_500_with_slope_coef_bis.csv')
+
+
+#test Alex
