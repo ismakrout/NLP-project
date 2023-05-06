@@ -1,6 +1,10 @@
 import pandas as pd 
 from src.utils import read_input
 
+###################################
+###fonctions to read speakers df### 
+###################################
+
 dtypes = {
     'party.facts.id' : str,
     'date': object,
@@ -51,7 +55,7 @@ def keep_parties(df: pd.DataFrame, list_of_parties: list):
     '''
     return df.loc[df['party'].isin(list_of_parties)]
 
-def read_and_prepare_df_of_the_model(path: str):
+def read_and_prepare_df_of_the_model(df: pd.DataFrame):
     '''
     this function reads the dataframe with the 500 significant words and their frequencies found 
     during the treatement of article 1. It prepares it and put it in shape to prepare the new model. 
@@ -60,10 +64,30 @@ def read_and_prepare_df_of_the_model(path: str):
     -----------
     path: the path of the df_freqs obtained in the first model
     '''
-    df = pd.read_csv(path)
     df.drop(columns=['Unnamed: 0', 'text'], inplace=True)
     new_df = pd.melt(df, id_vars=['Speaker', 'party'])
     new_df.sort_values(by=['variable'], inplace=True)
     new_df = new_df.reset_index(drop=True)
     new_df.rename(columns={'value': 'c_ijt'}, inplace=True)
     return new_df
+
+#####################################
+###fonctions to read newspapers df### 
+#####################################
+
+def treat_newspaper_df(df: pd.DataFrame, party: str, year:bool, year_value=None):
+    if year:
+        df = df.loc[df['year'] == year_value]
+    df = df[['author', 'fulltext']]
+    if party == 'Guardian' :
+        df['party'] = 'Lab'
+    if party == 'DE' :
+        df['party'] = 'Con'
+    df.rename(columns=
+            {'author' : 'Speaker', 'fulltext':'text'}, inplace=True)
+    return df
+
+def concat_newspapers_df(df_lab: pd.DataFrame, df_con: pd.DataFrame):
+    df = pd.concat([df_lab, df_con])
+    df.dropna().reset_index(drop=True)
+    return df
