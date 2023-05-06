@@ -68,6 +68,7 @@ def clean(text: str, gram:str):
   stemmer = PorterStemmer()
   tokens_stemmed = [stemmer.stem(token) for token in tokens]
   filtered_words = [word for word in tokens_stemmed if not word.lower() in english_stopwords]
+  filtered_words = [word for word in filtered_words if word != '']  
   if (gram == 'bigram'):
     filtered_words = extract_bigrams(filtered_words)
   return filtered_words
