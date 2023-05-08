@@ -1,5 +1,13 @@
 import pandas as pd
 
+from src.utils import *
+from src.data_preprocessing import *
+from src.data_processing import *
+from src.feature_selection import *
+from src.modelisation_arcticle_1 import *
+from src.modelisation_arcticle_2 import *
+
+
 # Correction du test du Qi 2 
 def test_qi_2(df_freqs: pd.DataFrame):
     '''
@@ -38,4 +46,21 @@ def keep_significatif_word(df_freqs: pd.DataFrame, n=500):
     '''
     df_freqs = df_freqs.sort_values(by=['chi_2'], ascending=False)
     df_freqs = df_freqs.head(n)
+    return df_freqs
+
+#############################################
+### feature selection for the ML approach ###
+#############################################
+
+def select_features_with_freqs(df, rd_lines=True, n=10000):
+    '''
+    allows to choose the features ie the words with the highest frequency 
+    '''
+    df['agenda'] = df['agenda'].apply(clean, args=('unigram',))
+    list_stem_topics = process_list_BigTech_words(topics)
+    df['text'] = df['text'].apply(clean, args=('bigram',))
+    df = df.groupby(by=['Speaker', 'party']).sum().reset_index()
+    df_freqs_Con = count_freqs(df, 'Con')
+    df_freqs_Lab = count_freqs(df, 'Lab')
+    df_freqs = merge_freq(df_freqs_Con, df_freqs_Lab)
     return df_freqs
